@@ -1,0 +1,673 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>eScan · ROSSKO</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: operator console — fixed left rail of views, working area with summary strip then detail; detail opens as a side sheet */
+:root{
+  --bg:#f4f4f5; --panel:#ffffff; --ink:#1a1a1a; --muted:#62626a; --line:#e3e3e6; --soft:#efeff1;
+  --brand:#c8202f; --brand-soft:#fbe9ea;
+  --good:#1f8a4c; --good-soft:#e3f3ea; --warn:#b26a00; --warn-soft:#fbf0dc; --bad:#c8202f; --bad-soft:#fbe4e6;
+  --rail:#1a1a1a; --rail-ink:#d6d6da;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --tone-pos:#b5b6be; --tone-mix:#e2c9a0; --plat-y:#3c3c44; --plat-g:#a9aab3;
+  --f-display:"Unbounded","Onest",system-ui,sans-serif;
+  --f-body:"Onest",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121214; --panel:#1b1b1e; --ink:#ececee; --muted:#9a9aa3; --line:#2c2c31; --soft:#232327;
+  --brand:#ef4a57; --brand-soft:#3a1c20;
+  --good:#4cc283; --good-soft:#163024; --warn:#e3a33c; --warn-soft:#352812; --bad:#ef5b67; --bad-soft:#3d1a1e;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --tone-pos:#55565e; --tone-mix:#7a6440; --plat-y:#d4d4da; --plat-g:#6b6c75;
+  --rail:#0b0b0c; --rail-ink:#b8b8bf; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121214; --panel:#1b1b1e; --ink:#ececee; --muted:#9a9aa3; --line:#2c2c31; --soft:#232327;
+  --brand:#ef4a57; --brand-soft:#3a1c20;
+  --good:#4cc283; --good-soft:#163024; --warn:#e3a33c; --warn-soft:#352812; --bad:#ef5b67; --bad-soft:#3d1a1e;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --tone-pos:#55565e; --tone-mix:#7a6440; --plat-y:#d4d4da; --plat-g:#6b6c75;
+  --rail:#0b0b0c; --rail-ink:#b8b8bf; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font:14px/1.45 var(--f-body)}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.app{display:grid;grid-template-columns:220px minmax(0,1fr);min-height:100%}
+.rail{background:var(--rail);color:var(--rail-ink);padding-block:20px;padding-inline:14px;display:flex;flex-direction:column;gap:22px;position:sticky;top:0;height:100vh}
+.logo{display:flex;flex-direction:column;gap:2px;padding-inline:8px}
+.logo b{font:700 20px var(--f-display);color:#fff;letter-spacing:.01em}
+.logo b i{font-style:normal;color:#ef4a57}
+.logo span{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:#8d8d95}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav a{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;border-radius:8px;color:var(--rail-ink);text-decoration:none;font-weight:500}
+.nav a:hover{background:#ffffff12}
+.nav a.on{background:#ffffff1c;color:#fff}
+.nav a .cnt{font:500 11px var(--f-mono);background:#c8202f;color:#fff;border-radius:10px;padding:1px 7px}
+.rail-foot{margin-top:auto;font-size:11.5px;color:#8d8d95;padding-inline:8px;line-height:1.5}
+.rail-foot b{color:#d6d6da;font-weight:600}
+main{min-width:0;padding-block:22px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1240px;margin-inline:auto;display:flex;flex-direction:column;gap:18px}
+.head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+.head h1{font:600 22px/1.2 var(--f-display);margin:0;text-wrap:balance}
+.head p{margin:4px 0 0;color:var(--muted);max-width:70ch}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:5px 12px;cursor:pointer;font-weight:500;font-size:13px}
+.chip:hover{border-color:var(--muted)}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;min-width:0}
+.panel>h2,.ph{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:0;padding:14px 16px 0;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.ph a{font-size:12.5px;text-transform:none;letter-spacing:0;color:var(--brand);text-decoration:none;font-weight:500;cursor:pointer}
+.pb{padding:12px 16px 16px}
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.kpi{background:var(--panel);padding:14px 16px;display:flex;flex-direction:column;gap:4px}
+.kpi .l{font-size:12px;color:var(--muted)}
+.kpi .v{font:600 26px/1.1 var(--f-display);font-variant-numeric:tabular-nums}
+.kpi .s{font-size:12px;color:var(--muted)}
+.grid2{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:18px}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:11.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+th.sort{cursor:pointer;user-select:none}
+th.sort:hover{color:var(--ink)}
+td.n,th.n{text-align:right}
+tbody tr:last-child td{border-bottom:0}
+tr.click{cursor:pointer}
+tr.click:hover td{background:var(--soft)}
+.store b{font-weight:600}
+.store small{display:block;color:var(--muted);font-size:12px}
+.rt{display:inline-flex;align-items:center;gap:6px;font:500 13px var(--f-mono)}
+.rt::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--good)}
+.rt.mid::before{background:var(--warn)}
+.rt.low::before{background:var(--bad)}
+.heat{display:inline-block;min-width:46px;text-align:center;padding:2px 6px;border-radius:5px;font:500 12.5px var(--f-mono)}
+.h0{background:var(--good-soft);color:var(--good)}
+.h1{background:var(--warn-soft);color:var(--warn)}
+.h2{background:var(--bad-soft);color:var(--bad)}
+.hx{color:var(--muted)}
+.pill{display:inline-block;font-size:11.5px;font-weight:600;border-radius:999px;padding:2px 9px;white-space:nowrap}
+.p-new{background:var(--bad-soft);color:var(--bad)}
+.p-work{background:var(--warn-soft);color:var(--warn)}
+.p-done{background:var(--good-soft);color:var(--good)}
+.tag{display:inline-block;font-size:11.5px;border:1px solid var(--line);border-radius:5px;padding:1px 7px;color:var(--muted);white-space:nowrap}
+.bars{display:flex;flex-direction:column;gap:9px}
+.bar{display:grid;grid-template-columns:minmax(0,190px) minmax(0,1fr) 34px;align-items:center;gap:10px;font-size:13px;cursor:pointer;background:none;border:0;padding:0;text-align:left}
+.bar .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar .track{height:10px;background:var(--soft);border-radius:3px;display:flex;overflow:hidden}
+.bar .track i{display:block;height:100%}
+.bar .c{font:500 12.5px var(--f-mono);text-align:right}
+.bar:hover .t{color:var(--brand)}
+.seg-m{background:var(--s1)} .seg-s{background:var(--s2)} .seg-r{background:var(--s3)}
+.bar .track{gap:2px}
+.chart{width:100%;min-height:40px}
+.chart svg{display:block;overflow:visible}
+.chart .gl{stroke:var(--line);stroke-width:1}
+.chart .gl.ref{stroke:var(--muted);stroke-dasharray:4 3}
+.chart .ax{fill:var(--muted);font:11px var(--f-mono)}
+.chart .ax.lbl{font:500 11.5px var(--f-body);fill:var(--ink)}
+.chart .ax.val{fill:var(--ink);font-weight:500}
+.chart .pt{stroke:var(--panel);stroke-width:2;cursor:pointer;opacity:.92}
+.chart .pt:hover,.chart rect:hover{opacity:1;stroke:var(--ink);stroke-width:1.5}
+.tip{position:fixed;z-index:40;pointer-events:none;background:var(--panel);color:var(--ink);border:1px solid var(--line);box-shadow:0 6px 24px #0002;border-radius:8px;padding:8px 10px;font-size:12.5px;line-height:1.45;max-width:280px}
+.tip b{font-weight:600}
+.rows{display:flex;flex-direction:column;gap:7px}
+.rows .row{display:grid;grid-template-columns:minmax(0,210px) minmax(0,1fr) 46px;gap:12px;align-items:center;font-size:13px}
+.rows .row.clk{cursor:pointer;border-radius:6px}
+.rows .row.clk:hover .rl b{color:var(--brand)}
+.rl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rl b{font-weight:600}
+.rv2{font:500 12.5px var(--f-mono);text-align:right;font-variant-numeric:tabular-nums}
+.stk{display:flex;gap:2px;height:14px;min-width:0}
+.stk i{display:block;height:100%;min-width:3px}
+.stk i:first-child{border-radius:4px 0 0 4px}.stk i:last-child{border-radius:0 4px 4px 0}.stk i:only-child{border-radius:4px}
+.t-pos{background:var(--tone-pos)}.t-mix{background:var(--tone-mix)}.t-neg{background:var(--brand)}
+.p-y{background:var(--plat-y)}.p-g{background:var(--plat-g)}
+.bt{position:relative;height:12px;background:var(--soft);border-radius:0 4px 4px 0}
+.bt i{display:block;height:100%;border-radius:0 4px 4px 0}
+.bt u{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink);opacity:.55;z-index:1;pointer-events:none}
+.dt{position:relative;height:20px;min-width:0}
+.dt s{position:absolute;top:0;bottom:0;width:1px;background:var(--line)}
+.dt u{position:absolute;top:-2px;bottom:-2px;width:2px;margin-left:-1px;background:var(--ink);opacity:.5}
+.dt b.rg{position:absolute;top:50%;height:3px;margin-top:-1.5px;background:var(--muted);opacity:.45;border-radius:2px}
+.dt i{position:absolute;top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;border:2px solid var(--panel);box-sizing:content-box;transform:translate(-2px,-2px);background:var(--ink)}
+.dt i:hover{z-index:2;outline:2px solid var(--ink)}
+.d-y{background:var(--plat-y)!important}.d-g{background:var(--plat-g)!important}
+.d-p{background:var(--brand)!important}.d-e{background:var(--muted)!important;opacity:.7}
+.legend i.d-y,.legend i.d-g,.legend i.d-p,.legend i.d-e{border-radius:50%}
+.rows .axis{margin-top:-2px}
+.rows .axis .dt{height:14px}
+.rows .axis em{position:absolute;transform:translateX(-50%);font:11px var(--f-mono);font-style:normal;color:var(--muted);white-space:nowrap}
+.hx{color:var(--muted);font-weight:400}
+.hm-mini{display:inline-block;min-width:26px;padding:3px 0;border-radius:4px;text-align:center;font:500 12px var(--f-mono)}
+
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:10px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.feed{display:flex;flex-direction:column}
+.rv{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 14px;padding:12px 16px;border-top:1px solid var(--line)}
+.rv:first-child{border-top:0}
+.rv .meta{font-size:12px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center}
+.rv .meta b{color:var(--ink);font-weight:600}
+.rv .txt{font-size:14px}
+.rv .tags{display:flex;flex-wrap:wrap;gap:5px}
+.rv .side{display:flex;flex-direction:column;align-items:flex-end;gap:6px;grid-row:1/span 3;grid-column:2}
+.btn{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:6px 11px;cursor:pointer;font-weight:500;font-size:13px;white-space:nowrap}
+.btn:hover{border-color:var(--muted)}
+.btn.pri{background:var(--brand);border-color:var(--brand);color:#fff}
+select.st{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:5px 8px;font-size:13px}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.search{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:7px 11px;min-width:0;width:240px;max-width:100%}
+.note{font-size:12.5px;color:var(--muted)}
+.att{display:flex;flex-direction:column}
+.att button{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 16px;border:0;border-top:1px solid var(--line);background:none;text-align:left;cursor:pointer}
+.att button:first-child{border-top:0}
+.att button:hover{background:var(--soft)}
+.att .why{font-size:12.5px;color:var(--muted);display:block;white-space:normal}
+.big{font:600 18px var(--f-display);font-variant-numeric:tabular-nums}
+.matrix td.cell{text-align:center;padding:5px}
+.matrix button.hm{width:100%;min-width:56px;border:0;border-radius:6px;padding:8px 4px;font:600 13px var(--f-mono);cursor:pointer}
+.matrix button.hm:hover{outline:2px solid var(--ink)}
+.empty{padding:28px 16px;text-align:center;color:var(--muted)}
+/* sheet */
+.scrim{position:fixed;inset:0;background:#0007;z-index:20}
+.sheet{position:fixed;top:0;right:0;bottom:0;width:min(560px,100%);background:var(--bg);z-index:21;overflow-y:auto;box-shadow:-10px 0 40px #0003;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);padding-right:env(safe-area-inset-right,0px)}
+.sh-top{position:sticky;top:0;background:var(--bg);display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:18px 20px 12px;border-bottom:1px solid var(--line);z-index:1}
+.sh-top h3{margin:0;font:600 18px/1.25 var(--f-display)}
+.sh-top p{margin:3px 0 0;color:var(--muted);font-size:13px}
+.sh-body{padding:16px 20px 28px;display:flex;flex-direction:column;gap:16px}
+.mini{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.mini>div{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.mini .l{font-size:11.5px;color:var(--muted)}
+.mini .v{font:600 18px var(--f-display);font-variant-numeric:tabular-nums}
+.asp{display:grid;grid-template-columns:120px minmax(0,1fr) 44px;gap:10px;align-items:center;font-size:13px}
+.asp .track{height:8px;background:var(--soft);border-radius:3px;position:relative}
+.asp .track i{position:absolute;inset:0 auto 0 0;border-radius:3px}
+.asp .track u{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink);opacity:.5}
+.asp .v{font:500 12.5px var(--f-mono);text-align:right}
+.kv h4{margin:0 0 4px;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.kv p{margin:0}
+.flag{background:var(--warn-soft);color:var(--ink);border-radius:8px;padding:10px 12px;font-size:13.5px}
+.flag b{color:var(--warn)}
+textarea{width:100%;min-height:150px;border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:10px;font:inherit;color:inherit;resize:vertical}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:8px;z-index:30;font-weight:500}
+.demo{font-size:11.5px;background:var(--brand-soft);color:var(--brand);border-radius:6px;padding:3px 8px;font-weight:600}
+@media (max-width:1000px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.grid2{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:760px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  .rail{position:sticky;top:0;height:auto;flex-direction:row;align-items:center;gap:10px;padding-block:10px;padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px));z-index:5;overflow-x:auto}
+  .logo span,.rail-foot{display:none}
+  .logo b{font-size:16px}
+  .nav{flex-direction:row}
+  .nav a{padding:7px 10px;white-space:nowrap}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .rv{grid-template-columns:minmax(0,1fr)}
+  .rv .side{grid-row:auto;grid-column:1;flex-direction:row;align-items:center;flex-wrap:wrap}
+  .bar{grid-template-columns:minmax(0,130px) minmax(0,1fr) 30px}
+  .rows .row{grid-template-columns:minmax(0,96px) minmax(0,1fr) 40px;gap:8px;font-size:12.5px}
+  .rl .hx{display:none}
+  .mini{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (prefers-reduced-motion:no-preference){.sheet{animation:slide .18s ease-out}@keyframes slide{from{transform:translateX(24px);opacity:.6}}}
+</style>
+
+<div class="app">
+  <aside class="rail">
+    <div class="logo"><b>e<i>Scan</i></b><span>ROSSKO · пилот</span></div>
+    <nav class="nav" id="nav"></nav>
+  </aside>
+  <main><div class="wrap" id="view"></div></main>
+</div>
+<div id="layer"></div>
+
+<script>
+const D = {"stores": [{"id": 1, "grp": "Москва", "city": "Москва", "addr": "Волгоградский пр-т, 18 стр. 1", "yr": 5, "yn": 131, "yt": 77, "silent": 0.412213740458015, "gr": 5, "gn": 14, "asp": [0.93, 0.93, 0.91, 1, null], "sample": 50, "neg": 3, "mix": 2, "negs": 0.06, "ans": 0.94, "strong": "Подбор и консультация, редкие позиции в наличии, нет очередей, возврат без проблем, сотрудники по именам", "compl": "Нет мелочёвки в наличии, цена фирменной незамерзайки", "flags": "—", "url": "https://yandex.ru/maps/org/rossko/17916265867/reviews/"}, {"id": 2, "grp": "Москва", "city": "Москва", "addr": "Братиславская ул., 6", "yr": 4.9, "yn": 103, "yt": 77, "silent": 0.252427184466019, "gr": 5, "gn": 24, "asp": [0.82, 0.84, 0.96, 0.83, 0.75], "sample": 30, "neg": 4, "mix": 0, "negs": 0.133333333333333, "ans": 0.966666666666667, "strong": "Привоз под заказ в тот же/следующий день, подбор по требованиям", "compl": "Опоздание заказа на 5 ч, обещанное наличие не подтвердилось, цена на полке ≠ на кассе, 15–20 мин без внимания", "flags": "Самые низкие аспекты «Персонал» и «Под заказ» среди точек Москвы", "url": "https://yandex.ru/maps/org/rossko/140941750212/reviews/"}, {"id": 3, "grp": "Москва", "city": "Москва", "addr": "Складочная ул., 1 стр. 13", "yr": 4.9, "yn": 59, "yt": 42, "silent": 0.288135593220339, "gr": 5, "gn": 15, "asp": [1, 0.94, 1, 1, null], "sample": 15, "neg": 2, "mix": 3, "negs": 0.133333333333333, "ans": 0.8, "strong": "Подбор по VIN, консультации в мессенджерах, проверка оригинальности", "compl": "Товар на полке «нет в базе» — не продали; ошибка подбора и отказ в возврате; парковка", "flags": "2 свежих отзыва без ответа", "url": "https://yandex.ru/maps/org/rossko/191455580601/reviews/"}, {"id": 4, "grp": "Москва", "city": "Москва", "addr": "Рублёвское ш., 28 корп. 1", "yr": 4.9, "yn": 46, "yt": 44, "silent": 0.0434782608695652, "gr": 5, "gn": 13, "asp": [0.96, 0.95, null, null, null], "sample": 30, "neg": 0, "mix": 0, "negs": 0, "ans": 0.933333333333333, "strong": "Подбор аналогов дешевле оригинала, доставка за час через приложение, работа с автосервисами", "compl": "—", "flags": "—", "url": "https://yandex.ru/maps/org/rossko/228695014038/reviews/"}, {"id": 5, "grp": "СПб", "city": "Санкт-Петербург", "addr": "ул. Седова, 13", "yr": 4.7, "yn": 130, "yt": 64, "silent": 0.507692307692308, "gr": 5, "gn": 23, "asp": [0.94, 0.97, 1, 0.95, null], "sample": 26, "neg": 2, "mix": 0, "negs": 0.0769230769230769, "ans": 1, "strong": "Чисто, без очередей, подбор по модели/году, возврат брака", "compl": "Продали не ту деталь, сбой возврата по QR; цена выше Авито, не дозвониться", "flags": "Рейтинг 4,7 ниже тональности текстов — тянут вниз оценки без текста", "url": "https://yandex.ru/maps/org/rossko/110930452075/reviews/"}, {"id": 6, "grp": "СПб", "city": "Санкт-Петербург", "addr": "Бестужевская ул., 10", "yr": 5, "yn": 136, "yt": 73, "silent": 0.463235294117647, "gr": 5, "gn": 6, "asp": [0.88, 0.91, 0.95, 0.82, null], "sample": 13, "neg": 2, "mix": 1, "negs": 0.153846153846154, "ans": 1, "strong": "Ассортимент, объяснение по схемам, приложение", "compl": "Срыв сроков поставщика 2 дня подряд; час в очереди при одном продавце", "flags": "На 2ГИС всего 6 оценок", "url": "https://yandex.ru/maps/org/rossko/26266497569/reviews/"}, {"id": 7, "grp": "СПб", "city": "Санкт-Петербург", "addr": "Комендантский пр-т, 11В", "yr": 5, "yn": 72, "yt": 47, "silent": 0.347222222222222, "gr": 4.7, "gn": 26, "asp": [0.97, 1, 0.94, 1, null], "sample": 14, "neg": 0, "mix": 0, "negs": 0, "ans": 1, "strong": "Доставка день в день, SMS-оповещения, подбор даже без читаемого VIN", "compl": "—", "flags": "На 2ГИС адрес пр. Испытателей 30 и рейтинг 4,7 — расхождение площадок", "url": "https://yandex.ru/maps/org/rossko/6834224737/reviews/"}, {"id": 8, "grp": "СПб", "city": "Санкт-Петербург", "addr": "пр-т Стачек, 21", "yr": 4.8, "yn": 92, "yt": 41, "silent": 0.554347826086957, "gr": 4.9, "gn": 33, "asp": [0.89, 0.87, 1, 0.83, 0.8], "sample": 12, "neg": 2, "mix": 0, "negs": 0.166666666666667, "ans": 1, "strong": "Ассортимент, цены", "compl": "Две ошибки подбора (по фото и по VIN), отказ принять заявление на возврат, угроза жалобой в Роспотребнадзор", "flags": "Блок однотипных хвалебных отзывов (март 2025) — риск снятия модерацией", "url": "https://yandex.ru/maps/org/rossko/131864821190/reviews/"}, {"id": 9, "grp": "Регионы", "city": "Екатеринбург", "addr": "ул. Щорса, 7", "yr": 4.7, "yn": 115, "yt": 61, "silent": 0.469565217391304, "gr": 5, "gn": 138, "asp": [0.91, 0.91, 1, 0.94, 0.87], "sample": 16, "neg": 2, "mix": 3, "negs": 0.125, "ans": 0.9375, "strong": "Аналог vs оригинал (экономия до 40%), программа лояльности, перепроверка по VIN", "compl": "Отправили забирать на другой адрес через город; «в наличии» на Дроме — по факту нет, цена выше", "flags": "Вход со стороны Машинной ул. — навигатор ведёт не туда (3 упоминания)", "url": "https://yandex.ru/maps/org/rossko/62996880428/reviews/"}, {"id": 10, "grp": "Регионы", "city": "Новосибирск", "addr": "пр-т Дзержинского, 1/1", "yr": 4.6, "yn": 146, "yt": 60, "silent": 0.589041095890411, "gr": 4.8, "gn": 524, "asp": [0.72, 0.82, 1, 0.79, 0.7], "sample": 18, "neg": 4, "mix": 1, "negs": 0.222222222222222, "ans": 0.944444444444444, "strong": "Быстрый привоз со склада (2–3 ч), горячая линия", "compl": "Один менеджер и очереди, хамство, потерянный заказ после продления хранения, духота в зале", "flags": "Худшие аспекты выборки: Персонал 72%, Под заказ 70%", "url": "https://yandex.ru/maps/org/rossko/86669368718/reviews/"}, {"id": 11, "grp": "Регионы", "city": "Казань", "addr": "пр-т Ибрагимова, 61", "yr": 4.9, "yn": 89, "yt": 53, "silent": 0.404494382022472, "gr": null, "gn": null, "asp": [0.86, 0.87, 0.95, 0.92, null], "sample": 12, "neg": 3, "mix": 0, "negs": 0.25, "ans": 1, "strong": "Доставка в любой магазин за 4 ч + SMS, подбор по VIN", "compl": "Отказ по подтверждённой поставке без звонка и возврата денег; в зале никого, выдача долгая; брак", "flags": "—", "url": "https://yandex.ru/maps/org/rossko/79851590805/reviews/"}, {"id": 12, "grp": "Регионы", "city": "Краснодар", "addr": "ул. Тургенева, 78", "yr": 5, "yn": 424, "yt": 321, "silent": 0.242924528301887, "gr": 5, "gn": 90, "asp": [0.98, 0.97, 1, 0.99, 0.94], "sample": 11, "neg": 1, "mix": 3, "negs": 0.0909090909090909, "ans": 1, "strong": "Отправка со склада каждые 30 мин, подбор в мессенджерах, бонусная программа", "compl": "Позицию молча убрали из заказа + пересорт, цена выросла; нет парковки", "flags": "Лидер сети по объёму отзывов (321) — эталон для тиражирования", "url": "https://yandex.ru/maps/org/rossko/53219821330/reviews/"}, {"id": 13, "grp": "Регионы", "city": "Ростов-на-Дону", "addr": "Белорусская ул., 147", "yr": 4.9, "yn": 281, "yt": 163, "silent": 0.419928825622776, "gr": null, "gn": null, "asp": [0.97, 0.97, 1, 0.94, 0.91], "sample": 10, "neg": 1, "mix": 2, "negs": 0.1, "ans": 1, "strong": "Подбор по VIN по телефону, доставка за 2 ч", "compl": "Выдали не ту деталь, нет срочной доставки/самовывоза со склада; нет стульев, мало парковки", "flags": "Соседняя карточка пр. 40-летия Победы, 216 — не указан график работы", "url": "https://yandex.ru/maps/org/rossko/156523265015/reviews/"}, {"id": 14, "grp": "Регионы", "city": "Самара", "addr": "Кабельная ул., 5", "yr": 4.7, "yn": 57, "yt": 24, "silent": 0.578947368421053, "gr": null, "gn": null, "asp": [null, null, null, null, null], "sample": 17, "neg": 0, "mix": 0, "negs": 0, "ans": 0.882352941176471, "strong": "Оптовые клиенты: скорость доставки, гарантийная политика", "compl": "—", "flags": "Кластер однотипных отзывов (дек. 2024), чужой отзыв про еду, акция без описания; аспекты не сформированы", "url": "https://yandex.ru/maps/org/rossko/40562526375/reviews/"}, {"id": 15, "grp": "Регионы", "city": "Новосибирск", "addr": "ул. Жуковского, 90", "yr": 4.6, "yn": 121, "yt": 65, "silent": 0.462809917355372, "gr": 4.9, "gn": 297, "asp": [0.91, 0.81, 0.92, 1, null], "sample": 9, "neg": 3, "mix": 0, "negs": 0.333333333333333, "ans": 0.888888888888889, "strong": "Удобный заказ на сайте с выбором ПВЗ, аналоги", "compl": "Продали передние стойки вместо задних; по VIN «нет», а на сайте было; «только оригинал», а в приложении аналог; хамство", "flags": "Разрыв «сайт/приложение vs касса» по наличию", "url": "https://yandex.ru/maps/org/rossko/221485560660/reviews/"}, {"id": 16, "grp": "Регионы", "city": "Нижний Новгород", "addr": "ул. Родионова, 23", "yr": 5, "yn": 122, "yt": 95, "silent": 0.221311475409836, "gr": null, "gn": null, "asp": [0.98, 1, 1, 1, 1], "sample": 14, "neg": 0, "mix": 0, "negs": 0, "ans": 0.785714285714286, "strong": "Нет очередей, проверка АКБ под нагрузкой, помощь с поиском снятых с производства деталей", "compl": "—", "flags": "2 отзыва с идентичным текстом — риск удаления модерацией; свежие без ответа", "url": "https://yandex.ru/maps/org/rossko/66721528950/reviews/"}, {"id": 17, "grp": "Регионы", "city": "Челябинск", "addr": "Свердловский пр-т, 23А", "yr": 4.9, "yn": 114, "yt": 61, "silent": 0.464912280701754, "gr": null, "gn": null, "asp": [0.9, 0.83, 0.95, 1, null], "sample": 11, "neg": 1, "mix": 1, "negs": 0.0909090909090909, "ans": 1, "strong": "Подбор масла по VIN, аналог на редкую модель день в день", "compl": "Стажёр один на смене — отказ в приёме возврата до прихода управляющего", "flags": "Яма на съезде (инфраструктура)", "url": "https://yandex.ru/maps/org/rossko/244288557920/reviews/"}, {"id": 18, "grp": "Регионы", "city": "Красноярск", "addr": "ул. 60 лет Октября, 121А/1", "yr": 4.8, "yn": 247, "yt": 116, "silent": 0.530364372469636, "gr": null, "gn": null, "asp": [0.89, 0.91, 0.98, 0.77, 0.8], "sample": 7, "neg": 1, "mix": 1, "negs": 0.142857142857143, "ans": 1, "strong": "Оригинальные запчасти без подделок, Telegram-бот подбора, консультанты на всех филиалах", "compl": "Подобранный «с образцом» пыльник не подошёл; при попытке вернуть — грубость и насмешки, клиентка ушла к конкуренту; нет витрины с товаром", "flags": "Аспект «Качество товаров» — 62% (минимум выборки), «Время ожидания» — 77%; клиентка цитирует слоган «Знаем ВСЁ о запчастях» против сервиса", "url": "https://yandex.ru/maps/org/rossko/128622151302/reviews/"}, {"id": 19, "grp": "Регионы", "city": "Воронеж", "addr": "Ленинский пр-т, 174/1", "yr": 4.7, "yn": 123, "yt": 67, "silent": 0.455284552845529, "gr": null, "gn": null, "asp": [0.85, 0.89, 1, 0.9, 0.86], "sample": 13, "neg": 1, "mix": 0, "negs": 0.0769230769230769, "ans": 0.923076923076923, "strong": "Доставка на адрес за час в выходной, привоз под заказ без предоплаты, сервис рядом", "compl": "Клиента в пустом магазине проигнорировали, продавцы ушли вглубь зала", "flags": "Рейтинг 4,7 при позитивных текстах — вниз тянут оценки без отзыва", "url": "https://yandex.ru/maps/org/rossko/23460845527/reviews/"}, {"id": 20, "grp": "Регионы", "city": "Тюмень", "addr": "ул. Щербакова, 160Д", "yr": 5, "yn": 122, "yt": 84, "silent": 0.311475409836066, "gr": null, "gn": null, "asp": [0.96, 0.95, 1, 1, null], "sample": 11, "neg": 0, "mix": 0, "negs": 0, "ans": 1, "strong": "Честный подбор без навязывания, минимум ожидания, цены ниже соседей", "compl": "—", "flags": "5 отзывов за один день (9 июня 2026) — всплеск, который модерация Яндекса может снять", "url": "https://yandex.ru/maps/org/rossko/44045425305/reviews/"}], "reviews": [{"grp": "Москва", "city": "Москва", "addr": "Волгоградский пр-т, 18 стр. 1", "date": "24.02.2025", "text": "Не нашлось мелочёвки (лампа, фильтр), менеджеры нерасторопные", "ans": "да", "t": [1, 4]}, {"grp": "Москва", "city": "Москва", "addr": "Волгоградский пр-т, 18 стр. 1", "date": "02.03.2026", "text": "Фирменная незамерзайка: неприятный запах и завышенная цена", "ans": "да", "t": [6, 7]}, {"grp": "Москва", "city": "Москва", "addr": "Волгоградский пр-т, 18 стр. 1", "date": "11.08.2026", "text": "Большой магазин, но не смог купить колёсные гайки", "ans": "да", "t": [1]}, {"grp": "Москва", "city": "Москва", "addr": "Братиславская ул., 6", "date": "01.08.2025", "text": "По телефону обещали наличие и привоз завтра, выдали 1 деталь из 2", "ans": "да", "t": [1, 2]}, {"grp": "Москва", "city": "Москва", "addr": "Братиславская ул., 6", "date": "04.11.2025", "text": "Интернет-заказ опоздал на 5 часов, SMS о поступлении пришла вечером — пришлось ехать в другой магазин", "ans": "да", "t": [2]}, {"grp": "Москва", "city": "Москва", "addr": "Братиславская ул., 6", "date": "01.12.2025", "text": "15–20 минут к клиенту никто не подошёл — сотрудники фасовали товар", "ans": "да", "t": [3, 4]}, {"grp": "Москва", "city": "Москва", "addr": "Братиславская ул., 6", "date": "11.07.2026", "text": "Цена на полке не совпала с кассой, затем отказали — «товар в резерве»", "ans": "да", "t": [1, 6]}, {"grp": "Москва", "city": "Москва", "addr": "Складочная ул., 1 стр. 13", "date": "19.12.2025", "text": "Товар в руках, но «нет в базе» — продать отказались, не приняли оплату наличными", "ans": "да", "t": [1]}, {"grp": "Москва", "city": "Москва", "addr": "Складочная ул., 1 стр. 13", "date": "17.08.2026", "text": "Программа не распознала VIN, подбор «на глаз», свечи не подошли — возврат не приняли", "ans": "да", "t": [0, 5]}, {"grp": "Москва", "city": "Москва", "addr": "Складочная ул., 1 стр. 13", "date": "2025–2026", "text": "Нет бесплатной парковки (3 упоминания)", "ans": "частично", "t": [8]}, {"grp": "СПб", "city": "Санкт-Петербург", "addr": "ул. Седова, 13", "date": "10.09.2025", "text": "Цена выше, чем в объявлении на Авито, не дозвониться, продавцы безучастны", "ans": "да", "t": [4, 6]}, {"grp": "СПб", "city": "Санкт-Петербург", "addr": "ул. Седова, 13", "date": "03.10.2026", "text": "Продали не ту деталь, возврат по QR-коду выдал ошибку, деньги не вернулись", "ans": "да", "t": [0, 5]}, {"grp": "СПб", "city": "Санкт-Петербург", "addr": "Бестужевская ул., 10", "date": "29.01.2025", "text": "Час ожидания: один продавец на зал", "ans": "да", "t": [3]}, {"grp": "СПб", "city": "Санкт-Петербург", "addr": "Бестужевская ул., 10", "date": "29.07.2025", "text": "Два дня переносов из-за задержки поставщика, ремонт в СТО сорван", "ans": "да", "t": [2]}, {"grp": "СПб", "city": "Санкт-Петербург", "addr": "пр-т Стачек, 21", "date": "08.05.2026", "text": "Подбор по фото (~7 000 ₽) не подошёл; заявление на возврат не приняли, клиент готовит жалобу в Роспотребнадзор", "ans": "да", "t": [0, 5]}, {"grp": "СПб", "city": "Санкт-Петербург", "addr": "пр-т Стачек, 21", "date": "29.06.2026", "text": "По VIN выдали неподходящие лампу и салонный фильтр", "ans": "да", "t": [0]}, {"grp": "Регионы", "city": "Екатеринбург", "addr": "ул. Щорса, 7", "date": "25.01.2026", "text": "На Дроме подтвердили наличие и цену, на месте — нет и на 200 ₽ дороже", "ans": "да", "t": [1, 6]}, {"grp": "Регионы", "city": "Екатеринбург", "addr": "ул. Щорса, 7", "date": "11.07.2026", "text": "Предложили забрать заказ на другом конце города — клиент ушёл к конкуренту", "ans": "да", "t": [1]}, {"grp": "Регионы", "city": "Екатеринбург", "addr": "ул. Щорса, 7", "date": "2024–2026", "text": "Вход со стороны Машинной ул., навигатор ведёт не туда (3 упоминания)", "ans": "да", "t": [8]}, {"grp": "Регионы", "city": "Новосибирск", "addr": "пр-т Дзержинского, 1/1", "date": "26.05.2026", "text": "По телефону консультируют подробно, в зале — безразличие", "ans": "да", "t": [4]}, {"grp": "Регионы", "city": "Новосибирск", "addr": "пр-т Дзержинского, 1/1", "date": "28.05.2026", "text": "Всегда один менеджер, очереди", "ans": "да", "t": [3]}, {"grp": "Регионы", "city": "Новосибирск", "addr": "пр-т Дзержинского, 1/1", "date": "29.05.2026", "text": "Хамство, с клиентом не поздоровались", "ans": "нет", "t": [4]}, {"grp": "Регионы", "city": "Новосибирск", "addr": "пр-т Дзержинского, 1/1", "date": "14.06.2026", "text": "Жара и духота в зале, очередь", "ans": "да", "t": [8]}, {"grp": "Регионы", "city": "Новосибирск", "addr": "пр-т Дзержинского, 1/1", "date": "24.08.2026", "text": "После продления хранения заказ «пропал»", "ans": "да", "t": [2]}, {"grp": "Регионы", "city": "Казань", "addr": "пр-т Ибрагимова, 61", "date": "06.08.2025", "text": "Подтвердили срок поставки, в конце дня — отказ без звонка, деньги не вернули", "ans": "да", "t": [2, 5]}, {"grp": "Регионы", "city": "Казань", "addr": "пр-т Ибрагимова, 61", "date": "19.03.2026", "text": "Новая катушка зажигания оказалась неисправной", "ans": "да", "t": [7]}, {"grp": "Регионы", "city": "Казань", "addr": "пр-т Ибрагимова, 61", "date": "08.06.2026", "text": "В зале никого, ждать консультанта, долгая выдача", "ans": "нет", "t": [3, 4]}, {"grp": "Регионы", "city": "Краснодар", "addr": "ул. Тургенева, 78", "date": "19.08.2026", "text": "Позицию молча удалили из заказа, пересорт на складе, при перезаказе +2 500 ₽", "ans": "да", "t": [2, 6]}, {"grp": "Регионы", "city": "Краснодар", "addr": "ул. Тургенева, 78", "date": "30.12.2025", "text": "Предновогодняя недружелюбность персонала", "ans": "да", "t": [4]}, {"grp": "Регионы", "city": "Краснодар", "addr": "ул. Тургенева, 78", "date": "01.09.2025", "text": "Нет парковки, части позиций нет даже под заказ", "ans": "да", "t": [8]}, {"grp": "Регионы", "city": "Ростов-на-Дону", "addr": "Белорусская ул., 147", "date": "05.11.2025", "text": "Выдали не ту деталь, машина на подъёмнике; нет срочной доставки/самовывоза со склада; нет стульев, мало парковки", "ans": "да", "t": [0, 2, 8]}, {"grp": "Регионы", "city": "Ростов-на-Дону", "addr": "Белорусская ул., 147", "date": "07.02.2026", "text": "Плохое качество купленного товара", "ans": "да", "t": [7]}, {"grp": "Регионы", "city": "Новосибирск", "addr": "ул. Жуковского, 90", "date": "23.05.2026", "text": "По VIN «нет», на сайте было дешевле; продавец грубил, повышал голос", "ans": "да", "t": [1, 4]}, {"grp": "Регионы", "city": "Новосибирск", "addr": "ул. Жуковского, 90", "date": "18.06.2026", "text": "Продали передние стойки вместо задних", "ans": "да", "t": [0]}, {"grp": "Регионы", "city": "Новосибирск", "addr": "ул. Жуковского, 90", "date": "21.09.2025", "text": "В магазине «только оригинал», в приложении был аналог", "ans": "нет", "t": [1]}, {"grp": "Регионы", "city": "Челябинск", "addr": "Свердловский пр-т, 23А", "date": "23.04.2026", "text": "Стажёр один на смене не принял возврат, отправил к управляющему 9–18", "ans": "да", "t": [3, 5]}, {"grp": "Регионы", "city": "Красноярск", "addr": "ул. 60 лет Октября, 121А/1", "date": "09.02.2026", "text": "Управляющий подобрал пыльник «с образцом», он не подошёл; при возврате грубили и высмеяли, клиентка купила у конкурента", "ans": "да", "t": [0, 4, 5]}, {"grp": "Регионы", "city": "Красноярск", "addr": "ул. 60 лет Октября, 121А/1", "date": "09.01.2026", "text": "Нет витрины — всё через менеджера у стойки, нужных ковриков нет", "ans": "да", "t": [1]}, {"grp": "Регионы", "city": "Воронеж", "addr": "Ленинский пр-т, 174/1", "date": "23.07.2025", "text": "В пустом магазине на клиента не отреагировали, продавцы ушли вглубь зала", "ans": "да", "t": [3, 4]}], "extra": [{"city": "Москва", "addr": "9-я ул. Соколиной Горы, 19", "yr": null, "yn": null, "gr": 4.8, "gn": 28, "note": null}, {"city": "Москва", "addr": "Краснобогатырская ул., 79", "yr": null, "yn": null, "gr": 4.7, "gn": 21, "note": null}, {"city": "Москва", "addr": "Ташкентская ул., 28 стр. 1", "yr": null, "yn": null, "gr": 5, "gn": 26, "note": null}, {"city": "Санкт-Петербург", "addr": "Трамвайный пр-т, 1", "yr": null, "yn": null, "gr": 4.7, "gn": 46, "note": null}, {"city": "Санкт-Петербург", "addr": "Тихорецкий пр-т, 15 к1", "yr": null, "yn": null, "gr": 4.6, "gn": 40, "note": null}, {"city": "Санкт-Петербург", "addr": "Будапештская ул., 83/39", "yr": null, "yn": null, "gr": 4.6, "gn": 48, "note": null}, {"city": "Санкт-Петербург", "addr": "Ириновский пр-т, 24 к1", "yr": null, "yn": null, "gr": 5, "gn": 36, "note": null}, {"city": "Санкт-Петербург", "addr": "пр-т Большевиков, 33 к1", "yr": null, "yn": null, "gr": 5, "gn": 35, "note": null}, {"city": "Санкт-Петербург", "addr": "Росско «Офис», БЦ Лада, пр-т Энергетиков, 3", "yr": null, "yn": null, "gr": 3, "gn": 2, "note": "Служебная карточка офиса в выдаче 2ГИС с рейтингом 3,0"}, {"city": "Екатеринбург", "addr": "ул. Черепанова, 25", "yr": 5, "yn": 98, "gr": 5, "gn": 73, "note": null}, {"city": "Екатеринбург", "addr": "Ясная ул., 31А", "yr": 4.7, "yn": 89, "gr": 5, "gn": 115, "note": null}, {"city": "Екатеринбург", "addr": "ул. Вилонова, 23А", "yr": 4.8, "yn": 122, "gr": 4.9, "gn": 129, "note": null}, {"city": "Новосибирск", "addr": "Троллейная ул., 37", "yr": 4.8, "yn": 121, "gr": 4.8, "gn": 474, "note": null}, {"city": "Новосибирск", "addr": "ул. Ватутина, 99А", "yr": 4.9, "yn": 63, "gr": 4.9, "gn": 245, "note": null}, {"city": "Казань", "addr": "ул. Хади Такташа, 121", "yr": 4.9, "yn": 64, "gr": null, "gn": null, "note": null}, {"city": "Казань", "addr": "ул. Академика Арбузова, 5", "yr": 4.9, "yn": 50, "gr": null, "gn": null, "note": null}, {"city": "Казань", "addr": "ул. Максимова, 5", "yr": 4.9, "yn": 61, "gr": null, "gn": null, "note": null}, {"city": "Краснодар", "addr": "Северная ул., 455", "yr": 5, "yn": 222, "gr": 5, "gn": 128, "note": null}, {"city": "Краснодар", "addr": "ул. Шевченко, 146/2", "yr": 5, "yn": 139, "gr": 5, "gn": 98, "note": null}, {"city": "Краснодар", "addr": "Кореновская ул., 1", "yr": 4.9, "yn": 107, "gr": 4.9, "gn": 92, "note": null}, {"city": "Краснодар", "addr": "«Росско, оптовый магазин», Новороссийская ул., 240/а", "yr": null, "yn": null, "gr": 5, "gn": 60, "note": "Карточка вне филиальной сети 2ГИС, на ней реклама стороннего юрлица"}, {"city": "Ростов-на-Дону", "addr": "пр-т Шолохова, 22", "yr": 4.9, "yn": 94, "gr": null, "gn": null, "note": null}, {"city": "Ростов-на-Дону", "addr": "ул. Вавилова, 70Е", "yr": 4.9, "yn": 85, "gr": null, "gn": null, "note": null}, {"city": "Ростов-на-Дону", "addr": "пр-т 40-летия Победы, 216", "yr": null, "yn": null, "gr": null, "gn": null, "note": "В карточке Яндекса не указан график работы"}, {"city": "Самара", "addr": "Чернореченская ул., 38", "yr": 4.8, "yn": 129, "gr": null, "gn": null, "note": null}, {"city": "Самара", "addr": "Ново-Садовая ул., 381 к1", "yr": 5, "yn": 97, "gr": null, "gn": null, "note": null}, {"city": "Нижний Новгород", "addr": "Горная ул., 2", "yr": 4.9, "yn": 116, "gr": null, "gn": null, "note": null}, {"city": "Нижний Новгород", "addr": "Молитовская ул., 7", "yr": 4.9, "yn": 101, "gr": null, "gn": null, "note": null}, {"city": "Челябинск", "addr": "ул. Энергетиков, 24", "yr": 4.8, "yn": 91, "gr": null, "gn": null, "note": null}, {"city": "Челябинск", "addr": "Городская ул., 2Б", "yr": 4.9, "yn": 92, "gr": null, "gn": null, "note": null}, {"city": "Красноярск", "addr": "Телевизорная ул., 4Д", "yr": 4.7, "yn": 97, "gr": null, "gn": null, "note": null}, {"city": "Красноярск", "addr": "2-я Брянская ул., 53В", "yr": 4.9, "yn": 117, "gr": null, "gn": null, "note": null}, {"city": "Красноярск", "addr": "ул. Алексеева, 1", "yr": 4.7, "yn": 125, "gr": null, "gn": null, "note": null}, {"city": "Тюмень", "addr": "Горпищекомбинатовская ул., 21А", "yr": 4.9, "yn": 64, "gr": null, "gn": null, "note": null}, {"city": "Тюмень", "addr": "ул. Пермякова, 1Б", "yr": 4.9, "yn": 72, "gr": null, "gn": null, "note": null}, {"city": "Тюмень", "addr": "ул. Ивана Словцова, 2/2", "yr": 4.9, "yn": 46, "gr": null, "gn": null, "note": null}, {"city": "Воронеж", "addr": "пр-т Труда, 48А", "yr": 4.8, "yn": 74, "gr": null, "gn": null, "note": null}, {"city": "Воронеж", "addr": "ул. Циолковского, 22", "yr": 4.9, "yn": 39, "gr": null, "gn": null, "note": null}, {"city": "Воронеж", "addr": "пр-т Патриотов, 31", "yr": 4.9, "yn": 40, "gr": null, "gn": null, "note": null}], "topics": ["Ошибка подбора (VIN/фото)", "Наличие: сайт/база ≠ магазин", "Сроки и сборка заказа", "Ожидание и нехватка персонала", "Отношение персонала", "Возврат", "Цена", "Качество товара", "Парковка, вход, условия в зале"]};
+const T = D.topics;
+const TS = ["Ошибка подбора","Наличие сайт ≠ магазин","Сроки и сборка","Ожидание, мало персонала","Отношение персонала","Возврат","Цена","Качество товара","Парковка и зал"];
+const ASP = ["Персонал","Запчасти","Выбор товаров","Время ожидания","Под заказ"];
+const GROUPS = ["Москва","СПб","Регионы"];
+const SHORT = {"Санкт-Петербург":"СПб","Нижний Новгород":"Н. Новгород","Ростов-на-Дону":"Ростов","Екатеринбург":"Екатеринбург"};
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const num = (v, d=0) => v==null ? "—" : v.toLocaleString("ru-RU",{minimumFractionDigits:d,maximumFractionDigits:d});
+const pct = v => v==null ? "—" : Math.round(v*100)+"%";
+const rcls = r => r==null ? "" : r>=4.9 ? "" : r>=4.75 ? "mid" : "low";
+const rt = (r,d=1) => r==null ? '<span class="hx">—</span>' : `<span class="rt ${rcls(r)}">${num(r,d)}</span>`;
+const heat = v => v==null ? '<span class="heat hx">—</span>' : `<span class="heat ${v<.8?"h2":v<.9?"h1":"h0"}">${pct(v)}</span>`;
+const sname = s => `${SHORT[s.city]||s.city}, ${s.addr}`;
+
+// link reviews to stores
+D.reviews.forEach((r,i) => { r.i=i; r.store = D.stores.find(s => s.addr===r.addr); r.d = parseDate(r.date); });
+function parseDate(s){ const m=/^(\d\d)\.(\d\d)\.(\d{4})$/.exec(s); return m ? new Date(+m[3],m[2]-1,+m[1]).getTime() : 0; }
+D.stores.forEach(s => s.reviews = D.reviews.filter(r => r.store===s));
+
+// per-viewer review status (prototype convenience)
+let ST = {};
+try { ST = JSON.parse(localStorage.getItem("escan-status")||"{}"); } catch(e){}
+const status = r => ST[r.i] || (r.ans==="да" ? "done" : r.ans==="частично" ? "work" : "new");
+const STL = {new:"Без ответа",work:"В работе",done:"Отвечено"};
+function setStatus(i,v){ ST[i]=v; try{localStorage.setItem("escan-status",JSON.stringify(ST))}catch(e){} }
+
+// aggregates
+function agg(list){
+  const avg = a => { a=a.filter(v=>v!=null); return a.length ? a.reduce((x,y)=>x+y,0)/a.length : null; };
+  const sum = k => list.reduce((x,s)=>x+(s[k]||0),0);
+  const yn=sum("yn"), yt=sum("yt"), samp=sum("sample"), neg=sum("neg");
+  return { n:list.length, yr:avg(list.map(s=>s.yr)), ymin:Math.min(...list.map(s=>s.yr)), yn, yt, silent:1-yt/yn,
+    gr:avg(list.map(s=>s.gr)), gn:sum("gn"), asp:ASP.map((_,i)=>avg(list.map(s=>s.asp[i]))),
+    samp, neg, negs:neg/samp, ans:list.reduce((x,s)=>x+(s.ans||0)*s.sample,0)/samp };
+}
+const ALL = agg(D.stores);
+const QD = quarterData(D.reviews);
+const BYG = Object.fromEntries(GROUPS.map(g=>[g,agg(D.stores.filter(s=>s.grp===g))]));
+
+// ---------- views ----------
+const VIEWS = {
+  overview:{label:"Обзор сети", render:overview},
+  analytics:{label:"Аналитика", render:analytics},
+  stores:{label:"Магазины", render:stores},
+  alerts:{label:"Негатив", render:alerts, count:()=>D.reviews.filter(r=>status(r)!=="done").length},
+  topics:{label:"Темы жалоб", render:topics},
+  cards:{label:"Карточки", render:cards},
+};
+let UI = { group:"Все", q:"", sort:"yr", dir:1, aStatus:"all", aTopic:null, aGroup:"Все" };
+try { Object.assign(UI, JSON.parse(localStorage.getItem("escan-ui")||"{}")); } catch(e){}
+const saveUI = () => { try{ localStorage.setItem("escan-ui", JSON.stringify({group:UI.group,sort:UI.sort,dir:UI.dir})) }catch(e){} };
+
+function route(){
+  const v = (location.hash||"").slice(1);
+  const cur = VIEWS[v] ? v : "overview";
+  $("#nav").innerHTML = Object.entries(VIEWS).map(([k,o]) => {
+    const c = o.count && o.count();
+    return `<a href="#${k}" class="${k===cur?"on":""}">${o.label}${c?`<span class="cnt">${c}</span>`:""}</a>`;
+  }).join("");
+  CH = {}; chN = 0;
+  $("#view").innerHTML = VIEWS[cur].render();
+  drawCharts($("#view"));
+  bind(cur);
+}
+window.addEventListener("hashchange", () => { closeSheet(); route(); window.scrollTo(0,0); });
+const go = h => { if(location.hash==="#"+h) route(); else location.hash=h; };
+
+function overview(){
+  const weak = D.stores.filter(s => s.yr<4.8 || (s.asp[0]!=null && s.asp[0]<.8) || s.negs>=.2).sort((a,b)=>a.yr-b.yr||b.negs-a.negs);
+  const tc = T.map((_,i)=>({i, g:GROUPS.map(g=>D.reviews.filter(r=>r.grp===g&&r.t.includes(i)).length)})).map(o=>({...o,tot:o.g.reduce((a,b)=>a+b,0)})).sort((a,b)=>b.tot-a.tot);
+  const max = tc[0].tot;
+  const recent = [...D.reviews].sort((a,b)=>b.d-a.d).slice(0,4);
+  const open = D.reviews.filter(r=>status(r)!=="done").length;
+  return `
+  <div class="head"><div><h1>Голос клиента ROSSKO</h1><p>20 пилотных магазинов, 59 карточек сети. Москва, Петербург и 12 городов регионов.</p></div><span class="demo">Прототип · данные пилота</span></div>
+  <div class="kpis">
+    <div class="kpi"><span class="l">Средний рейтинг Яндекса</span><span class="v">${num(ALL.yr,2)}</span><span class="s">минимум ${num(ALL.ymin,1)} · 2ГИС ${num(ALL.gr,2)}</span></div>
+    <div class="kpi"><span class="l">Оценок на площадках</span><span class="v">${num(ALL.yn+ALL.gn)}</span><span class="s">Яндекс ${num(ALL.yn)} · 2ГИС ${num(ALL.gn)}</span></div>
+    <div class="kpi"><span class="l">Доля негатива</span><span class="v">${pct(ALL.negs)}</span><span class="s">${ALL.neg} из ${ALL.samp} размеченных отзывов</span></div>
+    <div class="kpi"><span class="l">Оценок без текста</span><span class="v">${pct(ALL.silent)}</span><span class="s">${num(ALL.yn-ALL.yt)} «молчаливых» оценок</span></div>
+    <div class="kpi"><span class="l">Ответов компании</span><span class="v">${pct(ALL.ans)}</span><span class="s">${open} негативных ждут реакции</span></div>
+  </div>
+  <div class="panel"><div class="ph">Сравнение групп</div><div class="pb scroll"><table>
+    <thead><tr><th>Группа</th><th class="n">Точек</th><th class="n">Яндекс</th><th class="n">Мин.</th><th class="n">2ГИС</th><th class="n">Без текста</th>${ASP.map(a=>`<th class="n">${a}</th>`).join("")}<th class="n">Негатив</th><th class="n">Ответы</th></tr></thead>
+    <tbody>${[...GROUPS.map(g=>[g,BYG[g]]),["Вся выборка",ALL]].map(([g,a])=>`<tr class="${g!=="Вся выборка"?"click":""}" data-group="${g}"><td><b>${g}</b></td><td class="n">${a.n}</td><td class="n">${rt(a.yr,2)}</td><td class="n">${rt(a.ymin)}</td><td class="n">${num(a.gr,2)}</td><td class="n">${pct(a.silent)}</td>${a.asp.map(v=>`<td class="n">${heat(v)}</td>`).join("")}<td class="n">${pct(a.negs)}</td><td class="n">${pct(a.ans)}</td></tr>`).join("")}</tbody>
+  </table></div></div>
+  <div class="grid2">
+    <div class="panel"><div class="ph">Негативные отзывы по кварталам</div><div class="pb">${chart(columnsSvg(QD.Q, GROUPS))}${legendG()}<p class="note" style="margin:8px 0 0">По дате публикации. ${QD.undated} обобщённых жалоб с периодом «2024–2026» не показаны. Больше всего — ${(o=>o.label+": "+GROUPS.reduce((a,g)=>a+o.vals[g],0))([...QD.Q].sort((a,b)=>GROUPS.reduce((x,g)=>x+b.vals[g],0)-GROUPS.reduce((x,g)=>x+a.vals[g],0))[0])}.</p></div></div>
+    <div class="panel"><div class="ph">Тональность по группам <a data-go="analytics">Аналитика →</a></div><div class="pb">
+      ${stackRows([...GROUPS.map(g=>({label:`<b>${g}</b>`, plain:g, vals:toneOf(BYG[g].samp,D.stores.filter(s=>s.grp===g).reduce((a,s)=>a+s.neg,0),D.stores.filter(s=>s.grp===g).reduce((a,s)=>a+s.mix,0)), val:pct(BYG[g].negs)})), {label:"<b>Вся сеть</b>", plain:"Вся сеть", vals:toneOf(ALL.samp,ALL.neg,D.stores.reduce((a,s)=>a+s.mix,0)), val:pct(ALL.negs)}], TONE, "доля негатива")}
+      <div style="height:14px"></div>
+      ${barRows([...GROUPS.map(g=>({label:`<b>${g}</b>`, v:BYG[g].silent, color:GC[g], tip:`<b>${g}</b><br>Без текста: ${num(BYG[g].yn-BYG[g].yt)} из ${num(BYG[g].yn)} оценок`}))], {max:.6, fmt:pct, ref:ALL.silent})}
+      <p class="note" style="margin:8px 0 0">Нижний график — доля оценок без текста, черта — среднее по сети ${pct(ALL.silent)}.</p></div></div>
+  </div>
+  <div class="grid2">
+    <div class="panel"><div class="ph">Требуют внимания <a data-go="stores">Все магазины →</a></div>
+      <div class="att">${weak.map(s=>`<button data-store="${s.id}"><span class="big" style="color:var(--${s.yr<4.75?"bad":"warn"})">${num(s.yr,1)}</span><span><b>${esc(sname(s))}</b><span class="why">${esc(whyWeak(s))}</span></span><span class="pill ${s.negs>=.2?"p-new":"p-work"}">негатив ${pct(s.negs)}</span></button>`).join("")}</div>
+    </div>
+    <div class="panel"><div class="ph">О чём жалуются <a data-go="topics">Карта тем →</a></div>
+      <div class="pb"><div class="bars">${tc.map(o=>`<button class="bar" data-topic="${o.i}"><span class="t">${TS[o.i]}</span><span class="track">${o.g.map((v,j)=>`<i class="${["seg-m","seg-s","seg-r"][j]}" style="width:${v/max*100}%"></i>`).join("")}</span><span class="c">${o.tot}</span></button>`).join("")}</div>
+      <div class="legend"><span><i class="seg-m"></i>Москва</span><span><i class="seg-s"></i>СПб</span><span><i class="seg-r"></i>Регионы</span><span>· упоминаний в негативных отзывах</span></div></div>
+    </div>
+  </div>
+  <div class="panel"><div class="ph">Свежий негатив <a data-go="alerts">Вся лента →</a></div><div class="feed">${recent.map(reviewRow).join("")}</div></div>`;
+}
+function whyWeak(s){
+  const w=[];
+  if(s.asp[0]!=null && s.asp[0]<.8) w.push(`«Персонал» ${pct(s.asp[0])}`);
+  const lowA = s.asp.map((v,i)=>[v,i]).filter(([v,i])=>v!=null&&v<.8&&i>0).map(([v,i])=>`«${ASP[i]}» ${pct(v)}`); w.push(...lowA);
+  if(s.silent>.45) w.push(`${pct(s.silent)} оценок без текста`);
+  if(s.neg) w.push(`${s.neg} негативных из ${s.sample}`);
+  return w.join(" · ") || s.compl;
+}
+
+function storeList(){
+  let L = D.stores.filter(s => UI.group==="Все" || s.grp===UI.group);
+  const q = UI.q.trim().toLowerCase();
+  if(q) L = L.filter(s => (s.city+" "+s.addr).toLowerCase().includes(q));
+  const key = {yr:s=>s.yr,yn:s=>s.yn,gr:s=>s.gr??-1,silent:s=>s.silent,negs:s=>s.negs,a0:s=>s.asp[0]??2,a1:s=>s.asp[1]??2,a2:s=>s.asp[2]??2,a3:s=>s.asp[3]??2,a4:s=>s.asp[4]??2,ans:s=>s.ans}[UI.sort] || (s=>s.yr);
+  return L.sort((a,b)=>(key(a)-key(b))*UI.dir || a.id-b.id);
+}
+function stores(){
+  const cols=[["yr","Яндекс"],["yn","Оценок"],["gr","2ГИС"],["silent","Без текста"],...ASP.map((a,i)=>["a"+i,a]),["negs","Негатив"],["ans","Ответы"]];
+  const L = storeList();
+  return `<div class="head"><div><h1>Магазины</h1><p>Сортировка по любому столбцу. Нажмите на магазин, чтобы открыть карточку с аспектами, жалобами и риск-флагами.</p></div></div>
+  <div class="toolbar"><div class="chips">${["Все",...GROUPS].map(g=>`<button class="chip ${UI.group===g?"on":""}" data-chip="${g}">${g}</button>`).join("")}</div>
+  <input class="search" id="q" type="search" placeholder="Город или адрес" value="${esc(UI.q)}"></div>
+  <div class="panel scroll"><table>
+    <thead><tr><th>Магазин</th>${cols.map(([k,l])=>`<th class="n sort" data-sort="${k}">${l}${UI.sort===k?(UI.dir>0?" ↑":" ↓"):""}</th>`).join("")}</tr></thead>
+    <tbody>${L.map(s=>`<tr class="click" data-store="${s.id}"><td class="store"><b>${esc(SHORT[s.city]||s.city)}</b><small>${esc(s.addr)}</small></td><td class="n">${rt(s.yr)}</td><td class="n">${num(s.yn)}</td><td class="n">${s.gr==null?'<span class="hx">—</span>':num(s.gr,1)+` <small class="hx">· ${s.gn}</small>`}</td><td class="n">${pct(s.silent)}</td>${s.asp.map(v=>`<td class="n">${heat(v)}</td>`).join("")}<td class="n">${s.negs>=.2?`<span class="pill p-new">${pct(s.negs)}</span>`:pct(s.negs)}</td><td class="n">${pct(s.ans)}</td></tr>`).join("") || `<tr><td colspan="13" class="empty">Нет магазинов по этому запросу. Сбросьте поиск или выберите «Все».</td></tr>`}</tbody>
+  </table></div>
+  <p class="note">Аспекты — автоматическая разметка Яндекса, доля позитивных упоминаний: зелёный ≥ 90%, жёлтый 80–89%, красный &lt; 80%. Негатив — по первой странице отзывов, это нижняя граница.</p>`;
+}
+
+function reviewRow(r){
+  const st = status(r);
+  return `<div class="rv">
+    <div class="meta"><b>${esc(SHORT[r.city]||r.city)}, ${esc(r.addr)}</b><span>${esc(r.date)}</span><span>Яндекс Карты</span></div>
+    <div class="txt">${esc(r.text)}</div>
+    <div class="tags">${r.t.map(i=>`<span class="tag">${TS[i]}</span>`).join("")}</div>
+    <div class="side"><span class="pill p-${st}">${STL[st]}</span><button class="btn" data-reply="${r.i}">Ответить</button></div>
+  </div>`;
+}
+function alertList(){
+  return D.reviews.filter(r => (UI.aStatus==="all"||status(r)===UI.aStatus) && (UI.aTopic==null||r.t.includes(UI.aTopic)) && (UI.aGroup==="Все"||r.grp===UI.aGroup)).sort((a,b)=>b.d-a.d);
+}
+function alerts(){
+  const L = alertList();
+  const cnt = k => D.reviews.filter(r=>status(r)===k).length;
+  return `<div class="head"><div><h1>Лента негатива</h1><p>Негативные и смешанные отзывы с темами жалоб. В боевом eScan они приходят управляющему алертом в течение часа.</p></div></div>
+  <div class="toolbar">
+    <div class="chips">${[["all","Все",D.reviews.length],["new","Без ответа",cnt("new")],["work","В работе",cnt("work")],["done","Отвечено",cnt("done")]].map(([k,l,c])=>`<button class="chip ${UI.aStatus===k?"on":""}" data-ast="${k}">${l} · ${c}</button>`).join("")}</div>
+    <div class="chips"><select class="st" id="ag" aria-label="Группа">${["Все",...GROUPS].map(g=>`<option ${UI.aGroup===g?"selected":""}>${g}</option>`).join("")}</select>
+    <select class="st" id="at" aria-label="Тема"><option value="">Все темы</option>${TS.map((t,i)=>`<option value="${i}" ${UI.aTopic===i?"selected":""}>${t}</option>`).join("")}</select></div>
+  </div>
+  <div class="panel"><div class="feed">${L.map(reviewRow).join("") || `<div class="empty">Отзывов с такими фильтрами нет.</div>`}</div></div>
+  <p class="note">Пересказ сути отзывов без цитат. Статус «Отвечено» взят из карточки на дату сбора; изменения статуса в прототипе сохраняются только в вашем браузере.</p>`;
+}
+
+function topics(){
+  const m = T.map((_,i)=>GROUPS.map(g=>D.reviews.filter(r=>r.grp===g&&r.t.includes(i)).length));
+  const tot = GROUPS.map((_,j)=>m.reduce((a,r)=>a+r[j],0));
+  const all = tot.reduce((a,b)=>a+b,0);
+  const shade = (v,j) => { const share = v/tot[j]; return `background:color-mix(in srgb, var(--brand) ${Math.round(Math.min(share/.25,1)*85)}%, var(--soft));color:${share>.14?"#fff":"var(--ink)"}`; };
+  return `<div class="head"><div><h1>Карта тем жалоб</h1><p>Сколько раз тема встречается в негативных и смешанных отзывах. Цвет — доля темы внутри группы, чтобы Москву с 16 упоминаниями можно было сравнить с регионами, где их 34.</p></div></div>
+  <div class="panel scroll"><table class="matrix">
+    <thead><tr><th>Тема</th>${GROUPS.map(g=>`<th class="n" style="text-align:center">${g}</th>`).join("")}<th class="n">Всего</th><th class="n">Доля</th></tr></thead>
+    <tbody>${m.map((r,i)=>[r,i]).sort((a,b)=>b[0].reduce((x,y)=>x+y)-a[0].reduce((x,y)=>x+y)).map(([r,i])=>{const s=r.reduce((a,b)=>a+b,0);return `<tr><td>${T[i]}</td>${r.map((v,j)=>`<td class="cell"><button class="hm" style="${shade(v,j)}" data-cell="${i}|${GROUPS[j]}" aria-label="${T[i]}, ${GROUPS[j]}: ${v}">${v}</button></td>`).join("")}<td class="n"><b>${s}</b></td><td class="n">${pct(s/all)}</td></tr>`}).join("")}
+    <tr><td><b>Итого упоминаний</b></td>${tot.map(v=>`<td class="n" style="text-align:center"><b>${v}</b></td>`).join("")}<td class="n"><b>${all}</b></td><td></td></tr></tbody>
+  </table></div>
+  <div class="grid2">
+    <div class="panel"><div class="ph">Что видно</div><div class="pb" style="display:flex;flex-direction:column;gap:8px">
+      <p style="margin:0"><b>Москва.</b> Товар «есть в базе», но не на полке, и наоборот: 5 из 16 упоминаний.</p>
+      <p style="margin:0"><b>Петербург.</b> Ошибки подбора по VIN и фото, затем отказ в возврате.</p>
+      <p style="margin:0"><b>Регионы.</b> Отношение персонала: 7 из 10 жалоб этой темы по сети. Плюс условия в зале и парковка.</p>
+      <p style="margin:0"><b>Ассортимент</b> почти не критикуют: «Выбор товаров» — 98% позитива.</p>
+    </div></div>
+    <div class="panel"><div class="ph">Кому передать</div><div class="pb scroll"><table><tbody>
+      <tr><td>Наличие, сроки и сборка</td><td>Логистика и IT</td><td class="n">${m[1].concat(m[2]).reduce((a,b)=>a+b)}</td></tr>
+      <tr><td>Подбор и возврат</td><td>Категорийный отдел, обучение</td><td class="n">${m[0].concat(m[5]).reduce((a,b)=>a+b)}</td></tr>
+      <tr><td>Персонал и ожидание</td><td>Управляющие, HR</td><td class="n">${m[3].concat(m[4]).reduce((a,b)=>a+b)}</td></tr>
+      <tr><td>Цена и качество</td><td>Закупки, ценообразование</td><td class="n">${m[6].concat(m[7]).reduce((a,b)=>a+b)}</td></tr>
+      <tr><td>Парковка и зал</td><td>Эксплуатация</td><td class="n">${m[8].reduce((a,b)=>a+b)}</td></tr>
+    </tbody></table></div></div>
+  </div>
+  <p class="note">Нажмите на ячейку, чтобы открыть эти отзывы в ленте негатива.</p>
+  <div class="panel"><div class="ph">Темы по магазинам</div><div class="pb scroll"><table class="matrix">
+    <thead><tr><th>Магазин</th>${TS.map(x=>`<th class="n" style="text-align:center;white-space:normal;min-width:72px;vertical-align:bottom">${x}</th>`).join("")}<th class="n">Всего</th></tr></thead>
+    <tbody>${D.stores.filter(s=>s.reviews.length).sort((a,b)=>b.reviews.length-a.reviews.length).map(s=>`<tr class="click" data-store="${s.id}"><td class="store"><b>${esc(SHORT[s.city]||s.city)}</b><small>${esc(s.addr)}</small></td>${T.map((_,i)=>{const v=s.reviews.filter(r=>r.t.includes(i)).length;return `<td class="cell">${v?`<span class="hm-mini" style="background:color-mix(in srgb, var(--brand) ${v>1?80:40}%, var(--soft));color:${v>1?"#fff":"var(--ink)"}">${v}</span>`:'<span class="hx">·</span>'}</td>`}).join("")}<td class="n"><b>${s.reviews.length}</b></td></tr>`).join("")}</tbody>
+  </table></div></div>
+  <p class="note">Число отзывов магазина, где встречается тема. Один отзыв может касаться нескольких тем. Клик по строке открывает карточку магазина.</p>`;
+}
+
+function cards(){
+  const flagged = D.stores.filter(s=>s.flags && s.flags!=="—");
+  const ex = D.extra;
+  return `<div class="head"><div><h1>Карточки и площадки</h1><p>Гигиена карточек и рейтинги ещё 39 точек сети. Риск-флаги — то, что eScan отслеживает автоматически.</p></div></div>
+  <div class="panel"><div class="ph">Риск-флаги пилотных магазинов · ${flagged.length}</div><div class="att">${flagged.map(s=>`<button data-store="${s.id}"><span class="rt ${rcls(s.yr)}">${num(s.yr,1)}</span><span><b>${esc(sname(s))}</b><span class="why">${esc(s.flags)}</span></span><span class="tag">${s.grp}</span></button>`).join("")}</div></div>
+  <div class="panel"><div class="ph">Дополнительные точки · только рейтинги</div><div class="pb scroll"><table>
+    <thead><tr><th>Город</th><th>Карточка</th><th class="n">Яндекс</th><th class="n">Оценок</th><th class="n">2ГИС</th><th class="n">Оценок</th><th>Комментарий</th></tr></thead>
+    <tbody>${ex.map(e=>`<tr><td>${esc(e.city)}</td><td>${esc(e.addr)}</td><td class="n">${rt(e.yr)}</td><td class="n">${num(e.yn)}</td><td class="n">${rt(e.gr)}</td><td class="n">${num(e.gn)}</td><td style="white-space:normal;min-width:220px">${e.note?`<span class="pill p-work">${esc(e.note)}</span>`:""}</td></tr>`).join("")}</tbody>
+  </table></div></div>
+  <p class="note">В Новосибирске и Екатеринбурге 2ГИС — основная площадка (100–500+ оценок на точку), в Москве — вторичная (6–28).</p>`;
+}
+
+// ---------- charts ----------
+const GC = {"Москва":"var(--s1)","СПб":"var(--s2)","Регионы":"var(--s3)"};
+const tip = h => `data-tip="${esc(h)}"`;
+const legendG = (gs=GROUPS, extra="") => `<div class="legend">${gs.map(g=>`<span><i style="background:${GC[g]}"></i>${g}</span>`).join("")}${extra}</div>`;
+let CH = {}, chN = 0;
+const chart = (fn, cls="") => { const k = "c"+(chN++); CH[k] = fn; return `<div class="chart ${cls}" data-chart="${k}"></div>`; };
+function drawCharts(root=document){ root.querySelectorAll("[data-chart]").forEach(el => { const f = CH[el.dataset.chart]; if(f) el.innerHTML = f(Math.max(260, el.clientWidth)); }); }
+let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => drawCharts(), 150); });
+
+// tooltip
+const TIP = document.createElement("div"); TIP.className = "tip"; TIP.hidden = true; document.body.appendChild(TIP);
+function moveTip(e){
+  const t = e.target.closest && e.target.closest("[data-tip]");
+  if(!t){ TIP.hidden = true; return; }
+  TIP.innerHTML = t.dataset.tip; TIP.hidden = false;
+  const r = TIP.getBoundingClientRect();
+  let x = e.clientX + 14, y = e.clientY + 14;
+  if(x + r.width > innerWidth - 8) x = Math.max(8, e.clientX - r.width - 14);
+  if(y + r.height > innerHeight - 8) y = Math.max(8, e.clientY - r.height - 14);
+  TIP.style.left = x + "px"; TIP.style.top = y + "px";
+}
+document.addEventListener("pointermove", moveTip);
+document.addEventListener("pointerdown", moveTip);
+document.addEventListener("scroll", () => TIP.hidden = true, true);
+
+// HTML row charts (stay readable at any width)
+function stackRows(rows, segs, valLabel){
+  return `<div class="rows">${rows.map(r => { const t = segs.reduce((a,s)=>a+(r.vals[s.k]||0),0);
+    return `<div class="row ${r.store?"clk":""}" ${r.store?`data-store="${r.store}"`:""}><span class="rl">${r.label}</span><span class="stk">${segs.filter(s=>r.vals[s.k]>0).map(s=>`<i class="${s.cls}" style="flex:${r.vals[s.k]}" ${tip(`<b>${esc(r.plain||r.label)}</b><br>${s.label}: ${num(r.vals[s.k])} из ${num(t)} · ${pct(r.vals[s.k]/t)}`)}></i>`).join("")}</span><span class="rv2">${r.val}</span></div>`; }).join("")}</div>
+  <div class="legend">${segs.map(s=>`<span><i class="${s.cls}"></i>${s.label}</span>`).join("")}${valLabel?`<span>· справа — ${valLabel}</span>`:""}</div>`;
+}
+const TONE = [{k:"pos",label:"Позитив",cls:"t-pos"},{k:"mix",label:"Смешанные",cls:"t-mix"},{k:"neg",label:"Негатив",cls:"t-neg"}];
+const PLAT = [{k:"y",label:"Яндекс Карты",cls:"p-y"},{k:"g",label:"2ГИС",cls:"p-g"}];
+const toneOf = (samp,neg,mix) => ({pos:samp-neg-mix, mix, neg});
+
+function dotRows(rows, {min, max, ticks, fmt, refs=[]}){
+  const x = v => Math.max(0, Math.min(100, (v-min)/(max-min)*100));
+  const grid = ticks.map(t=>`<s style="left:${x(t)}%"></s>`).join("");
+  return `<div class="rows dots">${rows.map(r=>`<div class="row ${r.store?"clk":""}" ${r.store?`data-store="${r.store}"`:""}><span class="rl">${r.label}</span><span class="dt">${grid}${refs.map(f=>`<u style="left:${x(f.v)}%" ${tip(f.tip)}></u>`).join("")}${r.range?`<b class="rg" style="left:${x(r.range[0])}%;width:${x(r.range[1])-x(r.range[0])}%"></b>`:""}${r.dots.map(d=>`<i class="${d.cls||""}" style="left:${x(d.v)}%;${d.color?`background:${d.color}`:""}" ${tip(d.tip)}></i>`).join("")}</span><span class="rv2">${r.val??""}</span></div>`).join("")}
+  <div class="row axis"><span></span><span class="dt">${ticks.map(t=>`<em style="left:${x(t)}%">${fmt(t)}</em>`).join("")}</span><span></span></div></div>`;
+}
+function barRows(rows, {max, fmt, ref}){
+  return `<div class="rows">${rows.map(r=>`<div class="row ${r.store?"clk":""}" ${r.store?`data-store="${r.store}"`:""}><span class="rl">${r.label}</span><span class="bt">${ref!=null?`<u style="left:${ref/max*100}%"></u>`:""}<i style="width:${r.v/max*100}%;background:${r.color||"var(--ink)"}" ${tip(r.tip)}></i></span><span class="rv2">${fmt(r.v)}</span></div>`).join("")}</div>`;
+}
+
+// SVG: scatter rating × silent share
+function scatterSvg(list){
+  return w => {
+    const h = 300, m = {l:40, r:14, t:16, b:40};
+    const X = v => m.l + v/0.65*(w-m.l-m.r), Y = v => m.t + (5.05-v)/0.55*(h-m.t-m.b);
+    let s = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="Рейтинг Яндекса и доля оценок без текста">`;
+    [4.5,4.6,4.7,4.8,4.9,5.0].forEach(t => s += `<line x1="${m.l}" x2="${w-m.r}" y1="${Y(t)}" y2="${Y(t)}" class="${t===4.8?"gl ref":"gl"}"/><text x="${m.l-8}" y="${Y(t)+4}" text-anchor="end" class="ax">${num(t,1)}</text>`);
+    s += `<text x="${m.l+4}" y="${Y(4.8)-6}" class="ax">порог 4,8</text>`;
+    [0,.2,.4,.6].forEach(t => s += `<line x1="${X(t)}" x2="${X(t)}" y1="${h-m.b}" y2="${h-m.b+4}" class="gl"/><text x="${X(t)}" y="${h-m.b+18}" text-anchor="middle" class="ax">${pct(t)}</text>`);
+    s += `<text x="${w-m.r}" y="${h-4}" text-anchor="end" class="ax">доля оценок без текста →</text>`;
+    [...list].sort((a,b)=>b.yn-a.yn).forEach(st => {
+      const r = 4 + Math.sqrt(st.yn)/2.3;
+      s += `<circle cx="${X(st.silent)}" cy="${Y(st.yr)}" r="${r}" fill="${GC[st.grp]}" class="pt" data-store="${st.id}" ${tip(`<b>${esc(sname(st))}</b><br>Рейтинг ${num(st.yr,1)} · ${st.yn} оценок<br>Без текста: ${pct(st.silent)}<br>Негатив в выборке: ${pct(st.negs)}`)}/>`;
+      if(st.yr < 4.7) s += `<text x="${X(st.silent)}" y="${Y(st.yr)-r-5}" text-anchor="middle" class="ax lbl">${esc(st.addr.split(",")[0].replace(/^(ул\.|пр-т)\s*/,""))}</text>`;
+    });
+    return s + `</svg>`;
+  };
+}
+// SVG: stacked columns of negative reviews by quarter
+function quarterData(reviews){
+  const Q = []; for(const y of [2025,2026]) for(let q=0;q<4;q++) Q.push({y,q,label:["I","II","III","IV"][q]+" кв. "+String(y).slice(2),vals:Object.fromEntries(GROUPS.map(g=>[g,0]))});
+  let undated = 0;
+  reviews.forEach(r => { if(!r.d){ undated++; return; } const dt=new Date(r.d); const o=Q.find(o=>o.y===dt.getFullYear()&&o.q===Math.floor(dt.getMonth()/3)); if(o) o.vals[r.grp]++; });
+  return {Q, undated};
+}
+function columnsSvg(Q, groups){
+  return w => {
+    const h = 240, m = {l:28, r:8, t:18, b:36};
+    const tot = Q.map(o=>groups.reduce((a,g)=>a+o.vals[g],0)), max = Math.max(4, Math.ceil(Math.max(...tot)/2)*2);
+    const bw = (w-m.l-m.r)/Q.length, Y = v => m.t + (1-v/max)*(h-m.t-m.b), H = v => v/max*(h-m.t-m.b);
+    let s = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="Негативные отзывы по кварталам">`;
+    for(let t=0;t<=max;t+=max>8?4:2) s += `<line x1="${m.l}" x2="${w-m.r}" y1="${Y(t)}" y2="${Y(t)}" class="gl"/><text x="${m.l-6}" y="${Y(t)+4}" text-anchor="end" class="ax">${t}</text>`;
+    Q.forEach((o,i) => {
+      const x = m.l + i*bw + bw*0.2, cw = bw*0.6; let acc = 0;
+      groups.forEach(g => { const v = o.vals[g]; if(!v) return; const y = Y(acc+v), hh = H(v)-2; acc += v;
+        s += `<rect x="${x}" y="${y}" width="${cw}" height="${Math.max(1,hh)}" rx="${acc===tot[i]?3:0}" fill="${GC[g]}" ${tip(`<b>${o.label}</b><br>${g}: ${v}<br>Всего за квартал: ${tot[i]}`)}/>`; });
+      if(tot[i]) s += `<text x="${x+cw/2}" y="${Y(tot[i])-5}" text-anchor="middle" class="ax val">${tot[i]}</text>`;
+      s += `<text x="${x+cw/2}" y="${h-m.b+15}" text-anchor="middle" class="ax">${o.label.split(" кв. ")[0]}${bw>70?" кв.":""}</text>`;
+      if(o.q===0) s += `<text x="${x+cw/2}" y="${h-m.b+29}" text-anchor="middle" class="ax">${o.y}</text>`;
+    });
+    return s + `</svg>`;
+  };
+}
+
+// ---------- analytics view ----------
+function analytics(){
+  const gs = UI.ag2 && UI.ag2!=="Все" ? [UI.ag2] : GROUPS;
+  const L = D.stores.filter(s=>gs.includes(s.grp));
+  const A = agg(L);
+  const allCards = [...D.stores.map(s=>({city:s.city,addr:s.addr,yr:s.yr,yn:s.yn,gr:s.gr,gn:s.gn,pilot:true})), ...D.extra.map(e=>({...e,pilot:false}))];
+  const cityGrp = c => c==="Москва"?"Москва":c==="Санкт-Петербург"?"СПб":"Регионы";
+  const cities = [...new Set(allCards.map(c=>c.city))].filter(c=>gs.includes(cityGrp(c))).map(c => {
+    const cs = allCards.filter(x=>x.city===c), yrs = cs.map(x=>x.yr).filter(v=>v!=null), ps = D.stores.filter(s=>s.city===c);
+    const sm = k => cs.reduce((a,x)=>a+(x[k]||0),0);
+    return {c, n:cs.length, pilot:ps.length, yrs, avg:yrs.reduce((a,b)=>a+b,0)/yrs.length, min:Math.min(...yrs), max:Math.max(...yrs), yn:sm("yn"), gn:sm("gn"),
+      grs:cs.map(x=>x.gr).filter(v=>v!=null), neg:ps.reduce((a,s)=>a+s.neg,0), samp:ps.reduce((a,s)=>a+s.sample,0), cs};
+  }).sort((a,b)=>a.avg-b.avg);
+  const silentSorted = [...L].sort((a,b)=>b.silent-a.silent);
+  const toneSorted = [...L].sort((a,b)=>b.negs-a.negs||a.yr-b.yr);
+  return `<div class="head"><div><h1>Аналитика</h1><p>Графики по пилотным магазинам и всем 59 карточкам сети. Наведите на точку или столбец, чтобы увидеть значения; клик по магазину открывает его карточку.</p></div>
+    <div class="chips">${["Все",...GROUPS].map(g=>`<button class="chip ${(UI.ag2||"Все")===g?"on":""}" data-ag2="${g}">${g}</button>`).join("")}</div></div>
+  <div class="kpis">
+    <div class="kpi"><span class="l">Магазинов в срезе</span><span class="v">${A.n}</span><span class="s">${cities.length} ${cities.length===1?"город":"городов"} · ${cities.reduce((a,c)=>a+c.n,0)} карточек</span></div>
+    <div class="kpi"><span class="l">Ср. рейтинг Яндекса</span><span class="v">${num(A.yr,2)}</span><span class="s">2ГИС ${num(A.gr,2)}</span></div>
+    <div class="kpi"><span class="l">Ниже порога 4,8</span><span class="v">${L.filter(s=>s.yr<4.8).length}</span><span class="s">из ${A.n} пилотных магазинов</span></div>
+    <div class="kpi"><span class="l">Негатив</span><span class="v">${pct(A.negs)}</span><span class="s">${A.neg} из ${A.samp} отзывов</span></div>
+    <div class="kpi"><span class="l">Без текста</span><span class="v">${pct(A.silent)}</span><span class="s">${num(A.yn-A.yt)} из ${num(A.yn)} оценок</span></div>
+  </div>
+  <div class="grid2">
+    <div class="panel"><div class="ph">Рейтинг и «молчаливые» оценки</div><div class="pb">
+      ${chart(scatterSvg(L))}${legendG(gs, `<span>· размер — число оценок</span>`)}
+      <p class="note" style="margin:8px 0 0">Чем больше оценок без текста, тем ниже рейтинг: у всех точек с рейтингом 4,7 и ниже без текста от 46% оценок. Причину таких оценок покажет опрос после выдачи заказа.</p></div></div>
+    <div class="panel"><div class="ph">Аспекты Яндекса по группам</div><div class="pb">
+      ${dotRows(ASP.map((a,i)=>({label:a, dots:gs.map(g=>({v:BYG[g].asp[i], color:GC[g], tip:`<b>${a}</b><br>${g}: ${pct(BYG[g].asp[i])}`})).filter(d=>d.v!=null), val:pct(ALL.asp[i])})), {min:.7,max:1,ticks:[.7,.8,.9,1],fmt:pct, refs:[{v:.8,tip:"Граница зоны риска: 80%"}]})}
+      ${legendG(gs, `<span>· справа — среднее по сети</span>`)}
+      <p class="note" style="margin:8px 0 0">Самый слабый аспект — «Под заказ», в Москве 75%. «Выбор товаров» держится на 96–98% во всех группах.</p></div></div>
+  </div>
+  <div class="panel"><div class="ph">Рейтинг магазинов на двух площадках</div><div class="pb">
+    ${dotRows([...L].sort((a,b)=>a.yr-b.yr||a.id-b.id).map(s=>({store:s.id, label:`<b>${esc(SHORT[s.city]||s.city)}</b> <span class="hx">${esc(s.addr)}</span>`, dots:[...(s.gr!=null?[{v:s.gr,cls:"d-g",tip:`<b>${esc(sname(s))}</b><br>2ГИС: ${num(s.gr,1)} · ${s.gn} оценок`}]:[]),{v:s.yr,cls:"d-y",tip:`<b>${esc(sname(s))}</b><br>Яндекс: ${num(s.yr,1)} · ${s.yn} оценок`}], range:s.gr!=null?[Math.min(s.yr,s.gr),Math.max(s.yr,s.gr)]:null, val:num(s.yr,1)})), {min:4.5,max:5,ticks:[4.5,4.6,4.7,4.8,4.9,5],fmt:v=>num(v,1),refs:[{v:4.8,tip:"Порог 4,8"}]})}
+    <div class="legend"><span><i class="d-y"></i>Яндекс Карты</span><span><i class="d-g"></i>2ГИС</span><span>· вертикальная черта — порог 4,8</span></div></div></div>
+  <div class="grid2">
+    <div class="panel"><div class="ph">Разброс рейтинга по городам · все карточки</div><div class="pb">
+      ${dotRows(cities.map(c=>({label:esc(SHORT[c.c]||c.c)+` <span class="hx">· ${c.n}</span>`, plain:c.c, range:[c.min,c.max], dots:c.cs.filter(x=>x.yr!=null).map(x=>({v:x.yr, cls:x.pilot?"d-p":"d-e", tip:`<b>${esc(c.c)}, ${esc(x.addr)}</b><br>Яндекс: ${num(x.yr,1)} · ${num(x.yn)} оценок${x.pilot?"<br>Пилотный магазин":""}`})), val:num(c.avg,2)})), {min:4.5,max:5,ticks:[4.5,4.6,4.7,4.8,4.9,5],fmt:v=>num(v,1),refs:[{v:4.8,tip:"Порог 4,8"}]})}
+      <div class="legend"><span><i class="d-p"></i>Пилотный магазин</span><span><i class="d-e"></i>Другие карточки</span><span>· число после города — карточек; справа — средний рейтинг</span></div></div></div>
+    <div class="panel"><div class="ph">Главная площадка по городам</div><div class="pb">
+      ${stackRows(cities.filter(c=>c.gn>0).sort((a,b)=>b.gn/(b.gn+b.yn)-a.gn/(a.gn+a.yn)).map(c=>({label:esc(SHORT[c.c]||c.c), plain:c.c, vals:{y:c.yn,g:c.gn}, val:pct(c.gn/(c.yn+c.gn))})), PLAT, "доля 2ГИС")}
+      <p class="note" style="margin:8px 0 0">Число оценок по всем карточкам города, где есть данные 2ГИС. В Новосибирске на 2ГИС втрое больше оценок, в Москве 2ГИС — вторичная площадка.</p></div></div>
+  </div>
+  <div class="grid2">
+    <div class="panel"><div class="ph">Тональность размеченных отзывов</div><div class="pb">
+      ${stackRows(toneSorted.map(s=>({store:s.id, label:`<b>${esc(SHORT[s.city]||s.city)}</b> <span class="hx">${esc(s.addr)}</span>`, plain:sname(s), vals:toneOf(s.sample,s.neg,s.mix), val:pct(s.negs)})), TONE, "доля негатива")}</div></div>
+    <div class="panel"><div class="ph">Оценки без текста</div><div class="pb">
+      ${barRows(silentSorted.map(s=>({store:s.id, label:`<b>${esc(SHORT[s.city]||s.city)}</b> <span class="hx">${esc(s.addr)}</span>`, v:s.silent, color:GC[s.grp], tip:`<b>${esc(sname(s))}</b><br>${s.yn-s.yt} из ${s.yn} оценок без текста`})), {max:.7, fmt:pct, ref:ALL.silent})}
+      ${legendG(gs, `<span>· черта — среднее по сети ${pct(ALL.silent)}</span>`)}</div></div>
+  </div>
+  <div class="panel"><div class="ph">Города</div><div class="pb scroll"><table>
+    <thead><tr><th>Город</th><th class="n">Карточек</th><th class="n">Пилот</th><th class="n">Яндекс, ср.</th><th class="n">Мин.</th><th class="n">2ГИС, ср.</th><th class="n">Оценок Яндекс</th><th class="n">Оценок 2ГИС</th><th class="n">Негатив пилота</th></tr></thead>
+    <tbody>${cities.map(c=>`<tr><td><b>${esc(c.c)}</b></td><td class="n">${c.n}</td><td class="n">${c.pilot}</td><td class="n">${rt(c.avg,2)}</td><td class="n">${rt(c.min)}</td><td class="n">${c.grs.length?num(c.grs.reduce((a,b)=>a+b,0)/c.grs.length,2):"—"}</td><td class="n">${num(c.yn)}</td><td class="n">${c.gn?num(c.gn):"—"}</td><td class="n">${c.samp?pct(c.neg/c.samp):"—"}</td></tr>`).join("")}</tbody>
+  </table></div></div>`;
+}
+
+// ---------- sheets ----------
+function openStore(id){
+  const s = D.stores.find(x=>x.id==id); if(!s) return;
+  const g = BYG[s.grp];
+  const rankOf = (x,k,dir) => 1 + D.stores.filter(o => dir<0 ? o[k] > x[k] : o[k] < x[k]).length;
+  sheet(`<div class="sh-top"><div><h3>${esc(sname(s))}</h3><p>${s.grp} · магазин №${s.id}</p></div><button class="btn" data-close>Закрыть</button></div>
+  <div class="sh-body">
+    <div class="mini">
+      <div><span class="l">Яндекс</span><div class="v">${num(s.yr,1)}</div><span class="l">${s.yn} оценок · ${s.yt} отзывов</span></div>
+      <div><span class="l">2ГИС</span><div class="v">${s.gr==null?"—":num(s.gr,1)}</div><span class="l">${s.gn==null?"нет данных":s.gn+" оценок"}</span></div>
+      <div><span class="l">Без текста</span><div class="v">${pct(s.silent)}</div><span class="l">по группе ${pct(g.silent)}</span></div>
+      <div><span class="l">Негатив</span><div class="v">${pct(s.negs)}</div><span class="l">${s.neg} негатив · ${s.mix} смеш. из ${s.sample}</span></div>
+      <div><span class="l">Ответы</span><div class="v">${pct(s.ans)}</div><span class="l">в выборке</span></div>
+      <div><span class="l">По группе</span><div class="v">${num(g.yr,2)}</div><span class="l">ср. рейтинг «${s.grp}»</span></div>
+    </div>
+    <div class="panel"><div class="ph">Аспекты Яндекса <span class="note" style="text-transform:none;letter-spacing:0;font-weight:400">черта — среднее по сети</span></div><div class="pb" style="display:flex;flex-direction:column;gap:9px">
+      ${s.asp.every(v=>v==null)?'<p class="note" style="margin:0">Аспекты для этой карточки Яндекс не сформировал.</p>':ASP.map((a,i)=>`<div class="asp"><span>${a}</span><span class="track">${s.asp[i]==null?"":`<i style="width:${s.asp[i]*100}%;background:var(--${s.asp[i]<.8?"bad":s.asp[i]<.9?"warn":"good"})"></i>`}<u style="left:${ALL.asp[i]*100}%"></u></span><span class="v">${pct(s.asp[i])}</span></div>`).join("")}
+    </div></div>
+    <div class="panel"><div class="ph">Тональность выборки</div><div class="pb">
+      ${stackRows([{label:"<b>Этот магазин</b>",plain:sname(s),vals:toneOf(s.sample,s.neg,s.mix),val:pct(s.negs)},{label:"Группа «"+s.grp+"»",plain:s.grp,vals:toneOf(g.samp,g.neg,D.stores.filter(x=>x.grp===s.grp).reduce((a,x)=>a+x.mix,0)),val:pct(g.negs)},{label:"Вся сеть",plain:"Вся сеть",vals:toneOf(ALL.samp,ALL.neg,D.stores.reduce((a,x)=>a+x.mix,0)),val:pct(ALL.negs)}], TONE, "доля негатива")}</div></div>
+    <div class="panel"><div class="ph">Место среди 20 магазинов</div><div class="pb" style="display:flex;flex-direction:column;gap:12px">
+      <div class="note">Рейтинг Яндекса · ${rankOf(s,"yr",-1)}-е место</div>
+      ${dotRows([{label:"Рейтинг",dots:[...D.stores.filter(x=>x!==s).map(x=>({v:x.yr,cls:"d-e",tip:`${esc(sname(x))}: ${num(x.yr,1)}`})),{v:s.yr,cls:"d-p",tip:`<b>${esc(sname(s))}</b>: ${num(s.yr,1)}`}],val:num(s.yr,1)}],{min:4.5,max:5,ticks:[4.5,4.6,4.7,4.8,4.9,5],fmt:v=>num(v,1)})}
+      <div class="note">Доля негатива · ${rankOf(s,"negs",1)}-е место (чем меньше, тем лучше)</div>
+      ${dotRows([{label:"Негатив",dots:[...D.stores.filter(x=>x!==s).map(x=>({v:x.negs,cls:"d-e",tip:`${esc(sname(x))}: ${pct(x.negs)}`})),{v:s.negs,cls:"d-p",tip:`<b>${esc(sname(s))}</b>: ${pct(s.negs)}`}],val:pct(s.negs)}],{min:0,max:.35,ticks:[0,.1,.2,.3],fmt:pct})}
+      <div class="note">Оценки без текста · ${rankOf(s,"silent",1)}-е место</div>
+      ${dotRows([{label:"Без текста",dots:[...D.stores.filter(x=>x!==s).map(x=>({v:x.silent,cls:"d-e",tip:`${esc(sname(x))}: ${pct(x.silent)}`})),{v:s.silent,cls:"d-p",tip:`<b>${esc(sname(s))}</b>: ${pct(s.silent)}`}],val:pct(s.silent)}],{min:0,max:.6,ticks:[0,.2,.4,.6],fmt:pct})}
+      <div class="legend"><span><i class="d-p"></i>Этот магазин</span><span><i class="d-e"></i>Остальные 19</span></div></div></div>
+    ${s.gn?`<div class="panel"><div class="ph">Площадки</div><div class="pb">${stackRows([{label:"Оценок",plain:sname(s),vals:{y:s.yn,g:s.gn},val:pct(s.gn/(s.yn+s.gn))}],PLAT,"доля 2ГИС")}<p class="note" style="margin:8px 0 0">Яндекс ${num(s.yr,1)} · 2ГИС ${num(s.gr,1)}</p></div></div>`:""}
+    ${s.reviews.length?`<div class="panel"><div class="ph">Темы жалоб</div><div class="pb">${barRows(T.map((_,i)=>({label:TS[i],v:s.reviews.filter(r=>r.t.includes(i)).length,color:"var(--brand)",tip:`${TS[i]}: ${s.reviews.filter(r=>r.t.includes(i)).length}`})).filter(r=>r.v>0).sort((a,b)=>b.v-a.v),{max:Math.max(3,...s.reviews.map(()=>1)),fmt:v=>v})}</div></div>`:""}
+    <div class="kv"><h4>Сильные стороны</h4><p>${esc(s.strong)}</p></div>
+    <div class="kv"><h4>Ключевые жалобы</h4><p>${esc(s.compl)}</p></div>
+    ${s.flags&&s.flags!=="—"?`<div class="flag"><b>Риск-флаг карточки.</b> ${esc(s.flags)}</div>`:""}
+    <div class="panel"><div class="ph">Негативные отзывы · ${s.reviews.length}</div><div class="feed">${s.reviews.map(reviewRow).join("")||'<div class="empty">В выборке негатива нет.</div>'}</div></div>
+    <a class="btn" href="${esc(s.url)}" target="_blank" rel="noopener" style="text-decoration:none;align-self:flex-start">Отзывы на Яндекс Картах ↗</a>
+  </div>`);
+}
+const REPLY = [
+  "Нам жаль, что подбор оказался неточным. Мы разобрали ситуацию с сотрудниками магазина и проверили, где произошла ошибка при подборе по VIN.",
+  "Мы проверили расхождение между наличием на сайте и в магазине и передали случай в отдел, который отвечает за синхронизацию остатков.",
+  "Приносим извинения за задержку заказа. Мы выяснили причину и усилили контроль сроков и сборки в этом магазине.",
+  "Нам жаль, что пришлось ждать. Мы пересматриваем график смен, чтобы в часы пик в зале работало больше сотрудников.",
+  "Такое общение не соответствует нашим стандартам. Управляющий магазина уже разбирает ситуацию с сотрудником.",
+  "Мы хотим помочь с возвратом. Пожалуйста, напишите нам номер заказа — управляющий свяжется с вами и оформит возврат.",
+  "Спасибо, что сообщили о цене. Мы проверили ценники и порядок их обновления в магазине.",
+  "Нам жаль, что товар оказался некачественным. Мы оформим замену или возврат и передадим информацию поставщику.",
+  "Спасибо за замечание об условиях в магазине. Мы передали его службе эксплуатации.",
+];
+function openReply(i){
+  const r = D.reviews[i];
+  const text = `Здравствуйте! Спасибо, что написали нам.\n\n${r.t.map(t=>REPLY[t]).filter((v,k,a)=>a.indexOf(v)===k).join(" ")}\n\nЕсли вопрос ещё не решён, позвоните в магазин ROSSKO на ${r.addr} — мы поможем.\n\nКоманда ROSSKO`;
+  sheet(`<div class="sh-top"><div><h3>Ответ на отзыв</h3><p>${esc(SHORT[r.city]||r.city)}, ${esc(r.addr)} · ${esc(r.date)}</p></div><button class="btn" data-close>Закрыть</button></div>
+  <div class="sh-body">
+    <div class="panel"><div class="pb" style="display:flex;flex-direction:column;gap:8px"><div>${esc(r.text)}</div><div class="tags" style="display:flex;gap:5px;flex-wrap:wrap">${r.t.map(t=>`<span class="tag">${TS[t]}</span>`).join("")}</div></div></div>
+    <label for="rtext" class="note">Черновик по темам жалобы, отредактируйте перед публикацией</label>
+    <textarea id="rtext">${esc(text)}</textarea>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <button class="btn pri" data-copy>Скопировать ответ</button>
+      <label class="note" for="rst">Статус</label>
+      <select class="st" id="rst">${Object.entries(STL).map(([k,l])=>`<option value="${k}" ${status(r)===k?"selected":""}>${l}</option>`).join("")}</select>
+    </div>
+    ${r.store?`<button class="btn" data-store="${r.store.id}" style="align-self:flex-start">Открыть магазин</button>`:""}
+  </div>`);
+  $("#rst").onchange = e => { setStatus(i,e.target.value); toast("Статус: "+STL[e.target.value]); route(); };
+  $("[data-copy]").onclick = () => { const t=$("#rtext"); navigator.clipboard?.writeText(t.value).then(()=>toast("Ответ скопирован"),()=>{t.select();toast("Выделено, нажмите Ctrl+C")}) ?? (t.select(),toast("Выделено, нажмите Ctrl+C")); };
+}
+function sheet(html){
+  $("#layer").innerHTML = `<div class="scrim" data-close></div><aside class="sheet" role="dialog" aria-modal="true">${html}</aside>`;
+  drawCharts($("#layer"));
+  $("#layer").querySelector(".sheet [data-close]")?.focus();
+}
+const closeSheet = () => $("#layer").innerHTML = "";
+let tt; function toast(m){ clearTimeout(tt); document.querySelector(".toast")?.remove(); const d=document.createElement("div"); d.className="toast"; d.textContent=m; document.body.appendChild(d); tt=setTimeout(()=>d.remove(),1800); }
+
+// ---------- events ----------
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-close],[data-store],[data-reply],[data-go],[data-group],[data-topic],[data-cell],[data-chip],[data-sort],[data-ast],[data-ag2]");
+  if(!t) return;
+  const d = t.dataset;
+  if("close" in d) return closeSheet();
+  if(d.reply!=null) return openReply(+d.reply);
+  if(d.store) return openStore(d.store);
+  if(d.go) return go(d.go);
+  if(d.group){ UI.group=d.group; saveUI(); return go("stores"); }
+  if(d.topic!=null){ UI.aTopic=+d.topic; UI.aStatus="all"; UI.aGroup="Все"; return go("alerts"); }
+  if(d.cell){ const [i,g]=d.cell.split("|"); UI.aTopic=+i; UI.aGroup=g; UI.aStatus="all"; return go("alerts"); }
+  if(d.chip){ UI.group=d.chip; saveUI(); return route(); }
+  if(d.ag2){ UI.ag2=d.ag2; return route(); }
+  if(d.ast){ UI.aStatus=d.ast; return route(); }
+  if(d.sort){ UI.dir = UI.sort===d.sort ? -UI.dir : (["yr","a0","a1","a2","a3","a4","gr","ans"].includes(d.sort)?1:-1); UI.sort=d.sort; saveUI(); return route(); }
+});
+document.addEventListener("keydown", e => { if(e.key==="Escape") closeSheet(); });
+function bind(v){
+  if(v==="stores"){ const q=$("#q"); q.oninput = () => { UI.q=q.value; const p=q.selectionStart; route(); const n=$("#q"); n.focus(); n.setSelectionRange(p,p); }; }
+  if(v==="alerts"){ $("#ag").onchange=e=>{UI.aGroup=e.target.value;route()}; $("#at").onchange=e=>{UI.aTopic=e.target.value===""?null:+e.target.value;route()}; }
+}
+route();
+</script>
+
+</body></html>
